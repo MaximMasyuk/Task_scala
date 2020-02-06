@@ -1,0 +1,29 @@
+#!/bin/bash
+
+while read line ; do
+	if ["${line:0:1}"== "#"];
+	then
+		contine
+	fi
+	
+	if [[${line}=~ [А-Яа-я]]];
+	then
+		echo "Commit have russian letters"
+		exit 1
+		
+	fi
+	if [${#line} -le 10]; 
+	then
+		echo"commit massage than 10 letters"
+		exit 1
+		
+	fi
+	
+	IFS = '/!|\,.:;'
+	read -r -a arraey<<< "${line}"
+	if [${arraey[@]} -lt 2];
+	then
+		echo"commit massage than 2 words"
+		exit 1
+done < "${1}"
+exit 0
