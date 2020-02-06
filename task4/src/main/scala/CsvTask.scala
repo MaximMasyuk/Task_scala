@@ -31,17 +31,10 @@ object CsvTask extends  App {
 
       manth1(split_string(1))
       countbikeid(split_string(11))
-
-
       countusebike(split_string(11))
-
-
       mail = countMail(split_string(14))
       femail = countFemail(split_string(14))
       date4 = trevel_time(split_string(1), split_string(2))
-
-
-
       alltrevel+=1
 
     }
@@ -55,11 +48,6 @@ object CsvTask extends  App {
     writeFile2 ("usage-stats.cvs", Manth)
 
     writeFile3("bike-stats.cvs", ListMap(bike.toSeq.sortWith(_._2 > _._2):_*) )
-
-
-
-
-
     }
   }
 
