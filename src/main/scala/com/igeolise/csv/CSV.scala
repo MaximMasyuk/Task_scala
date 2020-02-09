@@ -82,14 +82,6 @@ object CSV extends App {
 
     }
 
-    println(rows.size())//1
-    println(date)//2
-    println(allbikes.size)//3
-    println(mail)//4
-    println(femail)//4
-    println(Manth)//5
-    println(bike)//7
-
 
     All.append(rows.size().toString, date.toString, (allbikes.size).toString, femail.toString, mail.toString )
 
