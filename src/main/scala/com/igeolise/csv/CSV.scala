@@ -6,13 +6,14 @@ import java.util.Date
 
 import com.univocity.parsers.common.processor.RowListProcessor
 import com.univocity.parsers.csv.{CsvParser, CsvParserSettings}
+import org.apache.logging.log4j.LogManager
 
 import scala.collection.immutable.ListMap
 import scala.collection.mutable.{ArrayBuffer, Map}
 
 object CSV extends App {
 
-
+  val logger = LogManager.getLogger("CSVProceeding")
   var mail = 0
   var All = ArrayBuffer[String]()
   var Manth = Map[Int, Int]()
@@ -27,9 +28,10 @@ object CSV extends App {
 
   var date2 = new Date()
 
+  logger.info("start project")
 
   def parseCsv(fileName: String): Unit = {
-
+    logger.info("start parse csv")
     val parserSettings = new CsvParserSettings()
     parserSettings.setLineSeparatorDetectionEnabled(true)
     val rowProcessor = new RowListProcessor
@@ -43,7 +45,6 @@ object CSV extends App {
 
 
     val rows = rowProcessor.getRows
-
 
     for (lines <- 0 to headers.size - 1) {
       for (line <- 0 to rows.size() - 1) {
@@ -72,6 +73,7 @@ object CSV extends App {
           countMail(get(lines))
           countFemail(get(lines))
 
+
         }
         if (headers(lines) == "bikeid") {
           countusebike(get(lines))
@@ -83,21 +85,31 @@ object CSV extends App {
 
 
     }
-    
+    logger.info("end parse csv")
+
+    logger.debug(s"Number of men and women Result=$mail$femail")
+    logger.debug(s"time of the longest trip Result=$date")
+    logger.debug(s"number of trips per month Result=$Manth")
+    logger.debug(s"the number of trips in decreasing number of trips Result=$bike")
+
 
     All.append(rows.size().toString, date.toString, (allbikes.size).toString, femail.toString, mail.toString)
 
-
+    logger.info("start writing in csv file")
     writeFile1("general-stats.cvs", All)
 
     writeFile2("usage-stats.cvs", Manth)
 
     writeFile3("bike-stats.cvs", ListMap(bike.toSeq.sortWith(_._2 > _._2): _*))
 
+    logger.info("end writing in csv file")
 
   }
 
-  parseCsv("Task.csv");
+
+  parseCsv("Task.csv")
+
+  logger.info("end project")
 
   def faunddate(date: String): Date = {
     val format = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
