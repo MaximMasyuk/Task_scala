@@ -11,3 +11,12 @@ libraryDependencies ++= Seq(
 libraryDependencies += "com.univocity" % "univocity-parsers" % "2.8.4"
 
 libraryDependencies += "commons-io" % "commons-io" % "2.6"
+
+wartremoverWarnings ++= Warts.all
+
+
+
+lazy val core = Project("core", file("modules/core"))
+
+
+

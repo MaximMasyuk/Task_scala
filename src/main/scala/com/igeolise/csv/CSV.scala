@@ -9,15 +9,16 @@ import com.univocity.parsers.csv.{CsvParser, CsvParserSettings}
 import org.apache.logging.log4j.LogManager
 
 import scala.collection.immutable.ListMap
+import scala.collection.mutable
 import scala.collection.mutable.{ArrayBuffer, Map}
 
 object CSV extends App {
 
   val logger = LogManager.getLogger("CSVProceeding")
   var mail = 0
-  var All = ArrayBuffer[String]()
-  var Manth = Map[Int, Int]()
-  var bike = Map[String, Int]()
+  var All = ArrayBuffer[Int]()
+  var Manth = mutable.Map[Int, Int]()
+  var bike = mutable.Map[String, Int]()
   var allbikes = Set[String]()
   var femail = 0
 
@@ -46,8 +47,8 @@ object CSV extends App {
 
     val rows = rowProcessor.getRows
 
-    for (lines <- 0 to headers.size - 1) {
-      for (line <- 0 to rows.size() - 1) {
+    for (lines <- 0 until headers.size) {
+      for (line <- 0 until rows.size()) {
 
         val get = rows.get(line)(0).split(",")
 
@@ -93,7 +94,7 @@ object CSV extends App {
     logger.debug(s"the number of trips in decreasing number of trips Result=$bike")
 
 
-    All.append(rows.size().toString, date.toString, (allbikes.size).toString, femail.toString, mail.toString)
+    All.append(rows.size(), date, (allbikes.size), femail, mail)
 
     logger.info("start writing in csv file")
     writeFile1("general-stats.cvs", All)
@@ -171,7 +172,7 @@ object CSV extends App {
 
   }
 
-  def writeFile1(fileName: String, lines: ArrayBuffer[String]): Unit = {
+  def writeFile1(fileName: String, lines: ArrayBuffer[Int]): Unit = {
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
     for (line <- lines) {
