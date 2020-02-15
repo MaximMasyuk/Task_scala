@@ -8,13 +8,12 @@ import com.univocity.parsers.common.processor.RowListProcessor
 import com.univocity.parsers.csv.{CsvParser, CsvParserSettings}
 import org.apache.logging.log4j.LogManager
 
-import scala.collection.immutable.ListMap
 import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, Map}
+import scala.collection.mutable.{ArrayBuffer, ListMap, Map}
 
 object CSV extends App {
 
-  val logger = LogManager.getLogger("CSVProceeding")
+  private val logger = LogManager.getLogger("CSVProceeding")
   var mail = 0
   var All = ArrayBuffer[Int]()
   var Manth = mutable.Map[Int, Int]()
@@ -94,14 +93,21 @@ object CSV extends App {
     logger.debug(s"the number of trips in decreasing number of trips Result=$bike")
 
 
+    val donuts2: Seq[String] = List("8/1/2016 00:01:22", "8/1/2016 00:01:43", "8/1/2016 00:02:10")
+    val donutsGroup2 = donuts2.groupBy(_.toString).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
+    println(donutsGroup2)
+
+
+
+
     All.append(rows.size(), date, (allbikes.size), femail, mail)
 
     logger.info("start writing in csv file")
-    writeFile1("general-stats.cvs", All)
+    writeFile("general-stats.cvs", All)
 
-    writeFile2("usage-stats.cvs", Manth)
+    writeFile("usage-stats.cvs", Manth)
 
-    writeFile3("bike-stats.cvs", ListMap(bike.toSeq.sortWith(_._2 > _._2): _*))
+    writeFile("bike-stats.cvs", ListMap(bike.toSeq.sortWith(_._2 > _._2): _*))
 
     logger.info("end writing in csv file")
 
@@ -164,6 +170,10 @@ object CSV extends App {
     else {
       bike(bikeid) += 1
     }
+
+
+
+
   }
 
   def countbikeid(bikeid: String): Unit = {
@@ -172,7 +182,7 @@ object CSV extends App {
 
   }
 
-  def writeFile1(fileName: String, lines: ArrayBuffer[Int]): Unit = {
+  def writeFile(fileName: String, lines: ArrayBuffer[Int]): Unit = {
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
     for (line <- lines) {
@@ -181,7 +191,7 @@ object CSV extends App {
     bw.close()
   }
 
-  def writeFile2(fileName: String, lines: Map[Int, Int]): Unit = {
+  def writeFile(fileName: String, lines: Map[Int, Int]): Unit = {
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
     for ((k, v) <- lines) {
@@ -190,7 +200,7 @@ object CSV extends App {
     bw.close()
   }
 
-  def writeFile3(fileName: String, lines: ListMap[String, Int]): Unit = {
+  def writeFile(fileName: String, lines: ListMap[String, Int]): Unit = {
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
     for ((k, v) <- lines) {
