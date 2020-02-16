@@ -1,5 +1,6 @@
 package com.igeolise.csv
 
+
 import java.io.{BufferedWriter, File, FileWriter}
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -8,25 +9,26 @@ import com.univocity.parsers.common.processor.RowListProcessor
 import com.univocity.parsers.csv.{CsvParser, CsvParserSettings}
 import org.apache.logging.log4j.LogManager
 
-import scala.collection.mutable
-import scala.collection.mutable.{ArrayBuffer, ListMap, Map}
+import scala.collection.mutable.ArrayBuffer
 
 object CSV extends App {
 
   private val logger = LogManager.getLogger("CSVProceeding")
-  var mail = 0
-  var All = ArrayBuffer[Int]()
-  var Manth = mutable.Map[Int, Int]()
-  var bike = mutable.Map[String, Int]()
-  var allbikes = Set[String]()
-  var femail = 0
 
-  var date = 0
-  var date1 = new Date()
-  var date10 = new Date()
+  var All = ArrayBuffer[Int]()
+
+  var seqWithData = Seq[String]()
+  var bikeid = Seq[String]()
+  var sex = Seq[String]()
+
+
+   var date = 0
+   var date10 = new Date()
   var date11 = new Date()
 
-  var date2 = new Date()
+  val monthOfTravel = 1
+
+
 
   logger.info("start project")
 
@@ -53,9 +55,8 @@ object CSV extends App {
 
 
         if (headers(lines) == "starttime") {
-          manth(get(lines))
           date10 = faunddate(get(lines))
-
+          seqWithData = seqWithData :+ get(lines)
         }
 
         if (headers(lines) == "stoptime") {
@@ -63,22 +64,16 @@ object CSV extends App {
         }
 
 
-        if (headers(lines) == "starttime") {
-          val date10 = faunddate(get(lines))
-          manth(get(lines))
-        }
-
 
         if (headers(lines) == "gender") {
-          countMail(get(lines))
-          countFemail(get(lines))
-
-
+          sex  = sex :+ get(lines)
         }
+
+
         if (headers(lines) == "bikeid") {
-          countusebike(get(lines))
-          countbikeid(get(lines))
+          bikeid = bikeid :+ get(lines)
         }
+
         timt_trevel(date10, date11)
 
       }
@@ -87,27 +82,27 @@ object CSV extends App {
     }
     logger.info("end parse csv")
 
-    logger.debug(s"Number of men and women Result=$mail$femail")
+
+
+
+
+
+    //logger.debug(s"Number of men and women Result=$mail$femail")
     logger.debug(s"time of the longest trip Result=$date")
-    logger.debug(s"number of trips per month Result=$Manth")
-    logger.debug(s"the number of trips in decreasing number of trips Result=$bike")
-
-
-    val donuts2: Seq[String] = List("8/1/2016 00:01:22", "8/1/2016 00:01:43", "8/1/2016 00:02:10")
-    val donutsGroup2 = donuts2.groupBy(_.toString).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
-    println(donutsGroup2)
+    //logger.debug(s"number of trips per month Result=$Manth")
+    //logger.debug(s"the number of trips in decreasing number of trips Result=$bike")
 
 
 
 
-    All.append(rows.size(), date, (allbikes.size), femail, mail)
+    All.append(rows.size(), date, (countusebike(bikeid).size))
 
     logger.info("start writing in csv file")
-    writeFile("general-stats.cvs", All)
+    writeFile("general-stats.cvs", All, mailAndFemail(sex))
 
-    writeFile("usage-stats.cvs", Manth)
+    writeFile("usage-stats.cvs", month(seqWithData))
 
-    writeFile("bike-stats.cvs", ListMap(bike.toSeq.sortWith(_._2 > _._2): _*))
+    writeFile3("bike-stats.cvs", countusebike(bikeid))
 
     logger.info("end writing in csv file")
 
@@ -120,78 +115,47 @@ object CSV extends App {
 
   def faunddate(date: String): Date = {
     val format = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
-    date1 = (format.parse(date))
-    return date1
+    return (format.parse(date))
+
   }
 
   def timt_trevel(date1: Date, date2: Date): Int = {
     if (date < (date2.getTime.toInt - date1.getTime.toInt)) {
       date = (date2.getTime.toInt - date1.getTime.toInt)
     }
-    return date //2
+    return date //2 а
   }
 
 
-  def manth(date: String): Unit = {
 
-    val format = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
-    val date1 = (format.parse(date))
-    if (!Manth.contains(date1.getMonth)) {
-      Manth += (date1.getMonth -> 1)
-    }
-    else {
-      Manth(date1.getMonth) += 1
-    }
+  def month(seqWithData: Seq[String]): Seq[(Char,Int)] ={
+    return seqWithData.groupBy(_.charAt(monthOfTravel)).mapValues(_.size).toSeq
+  }//3
 
-  }
+  def countusebike(bikeid: Seq[String]): Seq[(String,Int)] = {
 
-  def countMail(sex: String): Unit = {
+    return  bikeid.groupBy(_.toString).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
+  }//2в и 4
 
-    if (sex == "\"1\"") {
-      mail += 1
-    }
-
-  }
-
-  def countFemail(sex: String): Unit = {
-
-    if (sex == "\"2\"") {
-      femail += 1
-    }
-
-  }
-
-  def countusebike(bikeid: String): Unit = {
-
-    if (!bike.contains(bikeid)) {
-      bike += (bikeid -> 1)
-    }
-
-    else {
-      bike(bikeid) += 1
-    }
+  def mailAndFemail(sex: Seq[String] ): Seq[(String,Int)] = {
+    return sex.groupBy(_.toString).mapValues(_.size).toSeq
+  }//2г
 
 
 
-
-  }
-
-  def countbikeid(bikeid: String): Unit = {
-    allbikes += bikeid
-
-
-  }
-
-  def writeFile(fileName: String, lines: ArrayBuffer[Int]): Unit = {
+  def writeFile(fileName: String, lines: ArrayBuffer[Int],sex: Seq[(String,Int)] ): Unit = {
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
     for (line <- lines) {
       bw.write(line + "\n")
     }
+    for ((k, v) <- sex) {
+      bw.write(k.toString + "," + v.toString + "\n")
+    }
     bw.close()
   }
 
-  def writeFile(fileName: String, lines: Map[Int, Int]): Unit = {
+  def writeFile(fileName: String, lines:Seq[(Char,Int)]): Unit = {
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
     for ((k, v) <- lines) {
@@ -200,7 +164,7 @@ object CSV extends App {
     bw.close()
   }
 
-  def writeFile(fileName: String, lines: ListMap[String, Int]): Unit = {
+  def writeFile3(fileName: String, lines: Seq[(String,Int)]): Unit = {
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
     for ((k, v) <- lines) {

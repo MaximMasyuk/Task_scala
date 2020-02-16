@@ -1,19 +1,37 @@
 package itchart.scala.core
 
+import java.text.SimpleDateFormat
+import java.util.Date
+
 object computing_metrics {
+  private var date = 0
+  private var date1 = new Date()
 
-  val monthOfTravel = 1
-  def month(seqWithData: Seq[String]): Unit={
-    seqWithData.groupBy(_.charAt(monthOfTravel)).mapValues(_.size).toSeq
-  }//3
+  private val monthOfTravel = 1
 
-  def countusebike(bikeid: Seq[String]): Seq[(String,Int)] = {
+  def month(seqWithData: Seq[String]): Seq[(Char, Int)] = {
+    return seqWithData.groupBy(_.charAt(monthOfTravel)).mapValues(_.size).toSeq
+  } //3
 
-    return  bikeid.groupBy(_.toString).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
-  }//2в и 4
+  def countusebike(bikeid: Seq[String]): Seq[(String, Int)] = {
 
-  def mailAndFemail(sex: Seq[String] ):Unit = {
-    sex.groupBy(_.toString).mapValues(_.size).toSeq
+    return bikeid.groupBy(_.toString).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
+  } //2в и 4
+
+  def mailAndFemail(sex: Seq[String]): Seq[(String, Int)] = {
+    return sex.groupBy(_.toString).mapValues(_.size).toSeq
   }//2г
 
+  def timt_trevel(date1: Date, date2: Date): Int = {
+    if (date < (date2.getTime.toInt - date1.getTime.toInt)) {
+      date = (date2.getTime.toInt - date1.getTime.toInt)
+    }
+    return date //2 а
+  }
+
+  def faunddate(date: String): Date = {
+    val format = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
+    date1 = (format.parse(date))
+    return date1
+  }
 }
