@@ -1,8 +1,7 @@
 package com.igeolise.csv
 
 
-import java.io.{BufferedWriter, File, FileWriter}
-import java.text.SimpleDateFormat
+import java.io.File
 import java.util.Date
 
 import com.univocity.parsers.common.processor.RowListProcessor
@@ -22,8 +21,8 @@ object CSV extends App {
   var sex = Seq[String]()
 
 
-   var date = 0
-   var date10 = new Date()
+  var date = 0
+  var date10 = new Date()
   var date11 = new Date()
 
   val monthOfTravel = 1
@@ -32,7 +31,7 @@ object CSV extends App {
 
   logger.info("start project")
 
-  def parseCsv(fileName: String): Unit = {
+  def parseCsv(fileName: String): Seq[BikeTravelData] = {
     logger.info("start parse csv")
     val parserSettings = new CsvParserSettings()
     parserSettings.setLineSeparatorDetectionEnabled(true)
@@ -43,59 +42,65 @@ object CSV extends App {
 
     val parser = new CsvParser(parserSettings)
     parser.parse(new File(fileName))
-    val headers = rowProcessor.getHeaders
+    val headers: Map[String, Int] = rowProcessor.getHeaders.zipWithIndex.toMap
+    logger.info("Headers and indexes of parsed file : {}", headers)
+    import collection.JavaConverters._
+
+    val rows = rowProcessor.getRows.asScala.toSeq
+
+    logger.info(s"rows size ${rows.size}")
+    val result = rows.map(line => {
+
+      val lineData = line(0).split(",")
+      //logger.info("Line to be processed is : {}", lineData)
+      //logger.info("Amount of items in first line  : {}", lineData.size)
+      val c1: Option[String] = headers.get("tripduration").map(index => {
+        //logger.info("Index of column tripduration is : {}", index)
+        //logger.info("Value of column tripduration is : {}", lineData(index))
+        lineData(index)
+      })
+      val c2: Option[String] = headers.get("starttime").map(index => lineData(index))
+       val c3: Option[String] = headers.get("stoptime").map(index => lineData(index))
+       val c4: Option[String] = headers.get("start station id").map(index => lineData(index))
+       val c5: Option[String] = headers.get("start station name").map(index => lineData(index))
+       val c6: Option[String] = headers.get("start station latitude").map(index => lineData(index))
+       val c7: Option[String] = headers.get("start station longitude").map(index => lineData(index))
+       val c8: Option[String] = headers.get("end station id").map(index => lineData(index))
+       val c9: Option[String] = headers.get("end station name").map(index => lineData(index))
+       val c10: Option[String] = headers.get("end station latitude").map(index => lineData(index))
+       val c11: Option[String] = headers.get("end station longitude").map(index => lineData(index))
+       val c12: Option[String] = headers.get("bikeid").map(index => lineData(index))
+       val c13: Option[String] = headers.get("usertype").map(index => lineData(index))
+       val c14: Option[String] = headers.get("birth year").map(index => lineData(index))
+       val c15: Option[String] = headers.get("gender").map(index => lineData(index))
 
 
-    val rows = rowProcessor.getRows
+      BikeTravelData(c1, c2, c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15)
 
-    for (lines <- 0 until headers.size) {
-      for (line <- 0 until rows.size()) {
+    })
 
-        val get = rows.get(line)(0).split(",")
-
-
-        if (headers(lines) == "starttime") {
-          date10 = faunddate(get(lines))
-          seqWithData = seqWithData :+ get(lines)
-        }
-
-        if (headers(lines) == "stoptime") {
-          date11 = faunddate(get(lines))
-        }
-
-
-
-        if (headers(lines) == "gender") {
-          sex  = sex :+ get(lines)
-        }
-
-
-        if (headers(lines) == "bikeid") {
-          bikeid = bikeid :+ get(lines)
-        }
-
-        timt_trevel(date10, date11)
-
-      }
-
-
-    }
     logger.info("end parse csv")
 
 
+    result
+    }
 
 
+  val s = (parseCsv("Task.csv")(0))
+
+
+  //println(result)
 
 
     //logger.debug(s"Number of men and women Result=$mail$femail")
-    logger.debug(s"time of the longest trip Result=$date")
+    //logger.debug(s"time of the longest trip Result=$date")
     //logger.debug(s"number of trips per month Result=$Manth")
     //logger.debug(s"the number of trips in decreasing number of trips Result=$bike")
 
 
 
 
-    All.append(rows.size(), date, (countusebike(bikeid).size))
+    /*All.append(rows.size(), date, (countusebike(bikeid).size))
 
     logger.info("start writing in csv file")
     writeFile("general-stats.cvs", All, mailAndFemail(sex))
@@ -104,18 +109,18 @@ object CSV extends App {
 
     writeFile3("bike-stats.cvs", countusebike(bikeid))
 
-    logger.info("end writing in csv file")
+    logger.info("end writing in csv file")*/
 
   }
 
-
+/*
   parseCsv("Task.csv")
 
   logger.info("end project")
 
   def faunddate(date: String): Date = {
     val format = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
-    return (format.parse(date))
+    format.parse(date)
 
   }
 
@@ -123,22 +128,22 @@ object CSV extends App {
     if (date < (date2.getTime.toInt - date1.getTime.toInt)) {
       date = (date2.getTime.toInt - date1.getTime.toInt)
     }
-    return date //2 а
+    date //2 а
   }
 
 
 
   def month(seqWithData: Seq[String]): Seq[(Char,Int)] ={
-    return seqWithData.groupBy(_.charAt(monthOfTravel)).mapValues(_.size).toSeq
+    seqWithData.groupBy(_.charAt(monthOfTravel)).mapValues(_.size).toSeq
   }//3
 
   def countusebike(bikeid: Seq[String]): Seq[(String,Int)] = {
 
-    return  bikeid.groupBy(_.toString).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
+    bikeid.groupBy(_.toString).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
   }//2в и 4
 
   def mailAndFemail(sex: Seq[String] ): Seq[(String,Int)] = {
-    return sex.groupBy(_.toString).mapValues(_.size).toSeq
+    sex.groupBy(_.toString).mapValues(_.size).toSeq
   }//2г
 
 
@@ -172,4 +177,4 @@ object CSV extends App {
     }
     bw.close()
   }
-}
+}*/

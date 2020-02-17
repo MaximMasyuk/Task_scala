@@ -9,29 +9,32 @@ object computing_metrics {
 
   private val monthOfTravel = 1
 
-  def month(seqWithData: Seq[String]): Seq[(Char, Int)] = {
-    return seqWithData.groupBy(_.charAt(monthOfTravel)).mapValues(_.size).toSeq
-  } //3
+  def faunddate(date: String): Date = {
+    val format = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
+    format.parse(date)
 
-  def countusebike(bikeid: Seq[String]): Seq[(String, Int)] = {
+  }
 
-    return bikeid.groupBy(_.toString).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
-  } //2в и 4
-
-  def mailAndFemail(sex: Seq[String]): Seq[(String, Int)] = {
-    return sex.groupBy(_.toString).mapValues(_.size).toSeq
-  }//2г
-
-  def timt_trevel(date1: Date, date2: Date): Int = {
+  def timttrevel(date1: Date, date2: Date): Int = {
     if (date < (date2.getTime.toInt - date1.getTime.toInt)) {
       date = (date2.getTime.toInt - date1.getTime.toInt)
     }
-    return date //2 а
+    date
   }
 
-  def faunddate(date: String): Date = {
-    val format = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
-    date1 = (format.parse(date))
-    return date1
+
+
+  def month(seqWithData: Seq[String]): Seq[(Char,Int)] ={
+    seqWithData.groupBy(_.charAt(monthOfTravel)).mapValues(_.size).toSeq
   }
-}
+
+  def countusebike(bikeid: Seq[String]): Seq[(String,Int)] = {
+
+    bikeid.groupBy(_.toString).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
+  }
+
+  def mailAndFemail(sex: Seq[String] ): Seq[(String,Int)] = {
+    sex.groupBy(_.toString).mapValues(_.size).toSeq
+  }
+}//yfpdfnm yjhvfymyj
+//reduse
