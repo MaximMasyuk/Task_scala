@@ -2,6 +2,7 @@ package itchart.scala.core
 
 import java.text.SimpleDateFormat
 import java.util.Date
+import org.apache.logging.log4j.LogManager
 
 object computing_metrics {
   private var date = 0
@@ -33,7 +34,7 @@ object computing_metrics {
     bikeid.groupBy(_.toString).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
   }
 
-  def mailAndFemail(sex: Seq[String] ): Seq[(String,Int)] = {
+  def mailAndFeMail(sex: Seq[String] ): Seq[(String,Int)] = {
     sex.groupBy(_.toString).mapValues(_.size).toSeq
   }
 }//yfpdfnm yjhvfymyj

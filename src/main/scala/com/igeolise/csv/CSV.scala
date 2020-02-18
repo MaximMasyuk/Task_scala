@@ -16,16 +16,11 @@ object CSV extends App {
 
   var All = ArrayBuffer[Int]()
 
-  var seqWithData = Seq[String]()
-  var bikeid = Seq[String]()
-  var sex = Seq[String]()
-
-
   var date = 0
   var date10 = new Date()
   var date11 = new Date()
 
-  val monthOfTravel = 1
+  val monthOfTravel = 6
 
 
 
@@ -86,10 +81,24 @@ object CSV extends App {
     }
 
 
-  val s = (parseCsv("Task.csv")(0))
+ val s = (parseCsv("Task.csv"))
 
+  val c  = countUseBike(s)
+  val v = month(s)
+  println(c.size)
+  println(v)
 
-  //println(result)
+  def countUseBike(bikeid: Seq[BikeTravelData]): Seq[(Option[String],Int)] = {
+
+    bikeid.groupBy(_.bikeId).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
+  }//2в и 4
+
+  def mailAndFeMail(sex: Seq[BikeTravelData] ): Seq[(Option[String],Int)] = {
+    sex.groupBy(_.gender).mapValues(_.size).toSeq
+  }//2г
+  def month(seqWithData: Seq[BikeTravelData]): Seq[(Char,Int)] ={
+    seqWithData.groupBy(_.startTime.get(1)).mapValues(_.size).toSeq
+  }//3
 
 
     //logger.debug(s"Number of men and women Result=$mail$femail")
@@ -137,10 +146,7 @@ object CSV extends App {
     seqWithData.groupBy(_.charAt(monthOfTravel)).mapValues(_.size).toSeq
   }//3
 
-  def countusebike(bikeid: Seq[String]): Seq[(String,Int)] = {
 
-    bikeid.groupBy(_.toString).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
-  }//2в и 4
 
   def mailAndFemail(sex: Seq[String] ): Seq[(String,Int)] = {
     sex.groupBy(_.toString).mapValues(_.size).toSeq
