@@ -2,26 +2,26 @@ package com.igeolise.csv
 
 
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.Date
 
 import com.univocity.parsers.common.processor.RowListProcessor
 import com.univocity.parsers.csv.{CsvParser, CsvParserSettings}
 import org.apache.logging.log4j.LogManager
 
-import scala.collection.mutable.ArrayBuffer
-
 object CSV extends App {
 
   private val logger = LogManager.getLogger("CSVProceeding")
 
-  var All = ArrayBuffer[Int]()
+  /*var All = ArrayBuffer[Int]()
 
   var date = 0
   var date10 = new Date()
-  var date11 = new Date()
+  var date11 = new Date()*/
 
-  val monthOfTravel = 6
+  val format = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
 
+  val monthOfTravel: Int = 6
 
 
   logger.info("start project")
@@ -55,22 +55,22 @@ object CSV extends App {
         lineData(index)
       })
       val c2: Option[String] = headers.get("starttime").map(index => lineData(index))
-       val c3: Option[String] = headers.get("stoptime").map(index => lineData(index))
-       val c4: Option[String] = headers.get("start station id").map(index => lineData(index))
-       val c5: Option[String] = headers.get("start station name").map(index => lineData(index))
-       val c6: Option[String] = headers.get("start station latitude").map(index => lineData(index))
-       val c7: Option[String] = headers.get("start station longitude").map(index => lineData(index))
-       val c8: Option[String] = headers.get("end station id").map(index => lineData(index))
-       val c9: Option[String] = headers.get("end station name").map(index => lineData(index))
-       val c10: Option[String] = headers.get("end station latitude").map(index => lineData(index))
-       val c11: Option[String] = headers.get("end station longitude").map(index => lineData(index))
-       val c12: Option[String] = headers.get("bikeid").map(index => lineData(index))
-       val c13: Option[String] = headers.get("usertype").map(index => lineData(index))
-       val c14: Option[String] = headers.get("birth year").map(index => lineData(index))
-       val c15: Option[String] = headers.get("gender").map(index => lineData(index))
+      val c3: Option[String] = headers.get("stoptime").map(index => lineData(index))
+      val c4: Option[String] = headers.get("start station id").map(index => lineData(index))
+      val c5: Option[String] = headers.get("start station name").map(index => lineData(index))
+      val c6: Option[String] = headers.get("start station latitude").map(index => lineData(index))
+      val c7: Option[String] = headers.get("start station longitude").map(index => lineData(index))
+      val c8: Option[String] = headers.get("end station id").map(index => lineData(index))
+      val c9: Option[String] = headers.get("end station name").map(index => lineData(index))
+      val c10: Option[String] = headers.get("end station latitude").map(index => lineData(index))
+      val c11: Option[String] = headers.get("end station longitude").map(index => lineData(index))
+      val c12: Option[String] = headers.get("bikeid").map(index => lineData(index))
+      val c13: Option[String] = headers.get("usertype").map(index => lineData(index))
+      val c14: Option[String] = headers.get("birth year").map(index => lineData(index))
+      val c15: Option[String] = headers.get("gender").map(index => lineData(index))
 
 
-      BikeTravelData(c1, c2, c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15)
+      BikeTravelData(c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15)
 
     })
 
@@ -78,49 +78,64 @@ object CSV extends App {
 
 
     result
-    }
+  }
 
 
- val s = (parseCsv("Task.csv"))
+  val s = (parseCsv("Task.csv"))
+  val c = countUseBike(s)
 
-  val c  = countUseBike(s)
-  val v = month(s)
+  val q = transformStringToDate(s)
+  val v = month(q)
+  println (q)
   println(c.size)
-  println(v)
+  println(v+"1")
 
-  def countUseBike(bikeid: Seq[BikeTravelData]): Seq[(Option[String],Int)] = {
+  def countUseBike(bikeid: Seq[BikeTravelData]): Seq[(Option[String], Int)] = {
 
     bikeid.groupBy(_.bikeId).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
-  }//2в и 4
+  } //2в и 4
 
-  def mailAndFeMail(sex: Seq[BikeTravelData] ): Seq[(Option[String],Int)] = {
+  def mailAndFeMail(sex: Seq[BikeTravelData]): Seq[(Option[String], Int)] = {
     sex.groupBy(_.gender).mapValues(_.size).toSeq
-  }//2г
-  def month(seqWithData: Seq[BikeTravelData]): Seq[(Char,Int)] ={
-    seqWithData.groupBy(_.startTime.get(1)).mapValues(_.size).toSeq
-  }//3
+  } //2г
+  def month(seqWithData: Seq[BikeTrevelTime]): Seq[(Option[Int], Int)] = {
+    seqWithData.groupBy(_.startTime.map(x => x.getMonth)).mapValues(_.size).toSeq
+  } //3
 
 
-    //logger.debug(s"Number of men and women Result=$mail$femail")
-    //logger.debug(s"time of the longest trip Result=$date")
-    //logger.debug(s"number of trips per month Result=$Manth")
-    //logger.debug(s"the number of trips in decreasing number of trips Result=$bike")
+  def transformStringToDate(bikeid: Seq[BikeTravelData]): Seq[BikeTrevelTime]={
+
+    val result = bikeid.map(line => {
+      val c1: Option[Date]  = line.startTime.filter(element => !element.isEmpty).filter(element => { if (element == format.parse(element)){element}}).map(element => format.parse(element))
+      val c2: Option[Date]  = line.stopTime.filter(element => !element.isEmpty).map( element => format.parse(element))
 
 
+      BikeTrevelTime(c1,c2)
+    })
 
-
-    /*All.append(rows.size(), date, (countusebike(bikeid).size))
-
-    logger.info("start writing in csv file")
-    writeFile("general-stats.cvs", All, mailAndFemail(sex))
-
-    writeFile("usage-stats.cvs", month(seqWithData))
-
-    writeFile3("bike-stats.cvs", countusebike(bikeid))
-
-    logger.info("end writing in csv file")*/
+  result
 
   }
+
+
+  //logger.debug(s"Number of men and women Result=$mail$femail")
+  //logger.debug(s"time of the longest trip Result=$date")
+  //logger.debug(s"number of trips per month Result=$Manth")
+  //logger.debug(s"the number of trips in decreasing number of trips Result=$bike")
+
+
+  /*All.append(rows.size(), date, (countusebike(bikeid).size))
+
+  logger.info("start writing in csv file")
+  writeFile("general-stats.cvs", All, mailAndFemail(sex))
+
+  writeFile("usage-stats.cvs", month(seqWithData))
+
+  writeFile3("bike-stats.cvs", countusebike(bikeid))
+
+  logger.info("end writing in csv file")*/
+
+}
 
 /*
   parseCsv("Task.csv")

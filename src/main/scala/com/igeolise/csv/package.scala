@@ -1,8 +1,15 @@
 package com.igeolise
 
+import java.util.Date
+
 package object csv {
 
-  case class BikeTravelData(tripDuration: Option[String],
+
+   final case class BikeTrevelTime(startTime: Option[Date],
+                                   stopTime: Option[Date])
+
+
+   final case class BikeTravelData(tripDuration: Option[String],
                             startTime: Option[String],
                             stopTime: Option[String],
                             startStationId: Option[String],
@@ -17,5 +24,6 @@ package object csv {
                             userType: Option[String],
                             birthYear: Option[String],
                             gender: Option[String])
+
 
 }

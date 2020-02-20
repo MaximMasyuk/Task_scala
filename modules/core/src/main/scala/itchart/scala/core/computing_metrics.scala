@@ -2,7 +2,6 @@ package itchart.scala.core
 
 import java.text.SimpleDateFormat
 import java.util.Date
-import org.apache.logging.log4j.LogManager
 
 object computing_metrics {
   private var date = 0
