@@ -8,20 +8,15 @@ import java.util.Date
 import com.univocity.parsers.common.processor.RowListProcessor
 import com.univocity.parsers.csv.{CsvParser, CsvParserSettings}
 import org.apache.logging.log4j.LogManager
+import collection.JavaConverters._
 
 object CSV extends App {
 
   private val logger = LogManager.getLogger("CSVProceeding")
 
-  /*var All = ArrayBuffer[Int]()
 
-  var date = 0
-  var date10 = new Date()
-  var date11 = new Date()*/
 
   val format = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
-
-  val monthOfTravel: Int = 6
 
 
   logger.info("start project")
@@ -39,7 +34,6 @@ object CSV extends App {
     parser.parse(new File(fileName))
     val headers: Map[String, Int] = rowProcessor.getHeaders.zipWithIndex.toMap
     logger.info("Headers and indexes of parsed file : {}", headers)
-    import collection.JavaConverters._
 
     val rows = rowProcessor.getRows.asScala.toSeq
 
@@ -81,41 +75,53 @@ object CSV extends App {
   }
 
 
-  val s = (parseCsv("Task.csv"))
+  val s = parseCsv("Task.csv")
   val c = countUseBike(s)
 
   val q = transformStringToDate(s)
-  val v = month(q)
+  val b = x(q)
+  //val v = month(q)
   println (q)
-  println(c.size)
-  println(v+"1")
+  println(c)
+  println(b+"1")
 
-  def countUseBike(bikeid: Seq[BikeTravelData]): Seq[(Option[String], Int)] = {
+  def countUseBike(bikeId: Seq[BikeTravelData]): Seq[(Option[String], Int)] = {
 
-    bikeid.groupBy(_.bikeId).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
+    bikeId.groupBy(_.bikeId).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
   } //2в и 4
 
   def mailAndFeMail(sex: Seq[BikeTravelData]): Seq[(Option[String], Int)] = {
     sex.groupBy(_.gender).mapValues(_.size).toSeq
   } //2г
-  def month(seqWithData: Seq[BikeTrevelTime]): Seq[(Option[Int], Int)] = {
-    seqWithData.groupBy(_.startTime.map(x => x.getMonth)).mapValues(_.size).toSeq
+  def month(seqWithData: Seq[BikeTrevelTime]): Seq[(Int, Int)] = {
+    seqWithData.groupBy(_.startTime.getMonth).mapValues(_.size).toSeq
   } //3
 
 
-  def transformStringToDate(bikeid: Seq[BikeTravelData]): Seq[BikeTrevelTime]={
+  def transformStringToDate(bikeId: Seq[BikeTravelData]): Seq[BikeTrevelTime]={
 
-    val result = bikeid.map(line => {
-      val c1: Option[Date]  = line.startTime.filter(element => !element.isEmpty).filter(element => { if (element == format.parse(element)){element}}).map(element => format.parse(element))
-      val c2: Option[Date]  = line.stopTime.filter(element => !element.isEmpty).map( element => format.parse(element))
+    val result = bikeId.map(line => {
+      val c1: Option[Date]  = line.startTime.filter(element => !element.isEmpty).flatMap(x =>{
+        try{Option(format.parse(x))}catch {case x : Exception=> None}})
 
+      val c2: Option[Date]  = line.stopTime.filter(element => !element.isEmpty).flatMap(x =>{
+        try{Option(format.parse(x))}catch {case x : Exception=> None}})
 
-      BikeTrevelTime(c1,c2)
+      c1.zip(c2)
+    }).filter(x => x.isDefined).map(_.get).map(dto =>{
+      BikeTrevelTime(dto._1, dto._2)
     })
 
-  result
+    result
 
   }
+  def x (s: Seq[BikeTrevelTime]):Long={
+    s.map(elem => elem.stopTime.getTime - elem.startTime.getTime).maxBy(identity)
+  }
+// данные подаются в BikeTrevelTime когда даты распарсились
+
+  //(Option[Date], Option[Date]) => Option[(Date,Date)] => (Date, Date) => BikeTrevelTime
+
 
 
   //logger.debug(s"Number of men and women Result=$mail$femail")

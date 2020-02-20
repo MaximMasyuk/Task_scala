@@ -5,8 +5,8 @@ import java.util.Date
 package object csv {
 
 
-   final case class BikeTrevelTime(startTime: Option[Date],
-                                   stopTime: Option[Date])
+   final case class BikeTrevelTime(startTime:Date,
+                                   stopTime: Date)
 
 
    final case class BikeTravelData(tripDuration: Option[String],
