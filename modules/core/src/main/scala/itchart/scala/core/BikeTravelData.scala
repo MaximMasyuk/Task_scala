@@ -1,6 +1,6 @@
 package itchart.scala.core
 
-case class BikeTravelData(tripDuration: Option[String],
+final case class BikeTravelData(tripDuration: Option[String],
                           startTime: Option[String],
                           stopTime: Option[String],
                           startStationId: Option[String],

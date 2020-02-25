@@ -6,18 +6,42 @@ import java.util.Date
 
 import com.univocity.parsers.common.processor.RowListProcessor
 import com.univocity.parsers.csv.{CsvParser, CsvParserSettings}
-import itchart.scala.core.computing_metrics.{countUseBike, mailAndFeMail, month, time}
-import itchart.scala.core.{BikeTravelData, BikeTrevelTime}
+import itchart.scala.core.ComputinMetrics.{countUseBike, mailAndFeMail, month, time}
+import itchart.scala.core.{BikeTravelData, BikeTravelTime, Config}
+import org.apache.logging.log4j.LogManager
+import scopt.OParser
 
 import scala.collection.mutable.ArrayBuffer
 
 
 object CsvParse extends App {
 
+  val builder = OParser.builder[Config]
+  val parser1 = {
+    import builder._
+    OParser.sequence(
+      programName("scopt"),
+      head("scopt", "4.x"),
+      // option -f, --foo
+      opt[String]('f', "foo")
+        .action((x, c) => c.copy(foo = x))
+        .text("foo is an integer property"),
+      // more options here...
+    )
+  }
+  // OParser.parse returns Option[Config]
+  OParser.parse(parser1, args, Config()) match {
+    case Some(config) =>
+    // do something
+    case _ =>
+    // arguments are bad, error message will have been displayed
+  }
+
   val format: SimpleDateFormat = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
-  //private val logger = LogManager.getLogger("CSVProceeding")
+  private val logger = LogManager.getLogger("CSVProceeding")
+
   def parseCsv(fileName: String): Seq[BikeTravelData] = {
-    //logger.info("start parse csv")
+    logger.info("start parse csv")
     val parserSettings = new CsvParserSettings()
     parserSettings.setLineSeparatorDetectionEnabled(true)
     val rowProcessor = new RowListProcessor
@@ -28,22 +52,16 @@ object CsvParse extends App {
     val parser = new CsvParser(parserSettings)
     parser.parse(new File(fileName))
     val headers: Map[String, Int] = rowProcessor.getHeaders.zipWithIndex.toMap
-    //logger.info("Headers and indexes of parsed file : {}", headers)
+    logger.info("Headers and indexes of parsed file : {}", headers)
     import collection.JavaConverters._
 
     val rows = rowProcessor.getRows.asScala.toSeq
 
-    //logger.info(s"rows size ${rows.size}")
+    logger.info(s"rows size ${rows.size}")
     val result = rows.map(line => {
 
       val lineData = line(0).split(",")
-      //logger.info("Line to be processed is : {}", lineData)
-      //logger.info("Amount of items in first line  : {}", lineData.size)
-      val tripduration: Option[String] = headers.get("tripduration").map(index => {
-        //logger.info("Index of column tripduration is : {}", index)
-        //logger.info("Value of column tripduration is : {}", lineData(index))
-        lineData(index)
-      })
+      val tripduration: Option[String] = headers.get("tripduration").map(index => lineData(index))
       val startTime: Option[String] = headers.get("starttime").map(index => lineData(index))
       val stopTime: Option[String] = headers.get("stoptime").map(index => lineData(index))
       val startStationId: Option[String] = headers.get("start station id").map(index => lineData(index))
@@ -60,34 +78,38 @@ object CsvParse extends App {
       val gender: Option[String] = headers.get("gender").map(index => lineData(index))
 
 
-      BikeTravelData(tripduration, startTime, stopTime,startStationId,starStationName,startStationLatitude,startStationLongitude,
-        endStationId,endStationName,endStationLatitude,endStationLongitude,bikeId,userType,birthYear,gender)
+      BikeTravelData(tripduration, startTime, stopTime, startStationId, starStationName, startStationLatitude, startStationLongitude,
+        endStationId, endStationName, endStationLatitude, endStationLongitude, bikeId, userType, birthYear, gender)
 
     })
 
-    //logger.info("end parse csv")
+    logger.info("end parse csv")
 
 
     result
   }
 
   val bikeTravelData: Seq[BikeTravelData] = parseCsv("Task.csv")
-  val bikeTrevelTime: Seq[BikeTrevelTime] = transformStringToDate(bikeTravelData)
-  val all: ArrayBuffer[Int] = ArrayBuffer(bikeTravelData.size, time(bikeTrevelTime).toInt, countUseBike(bikeTravelData).size)
+  val bikeTravelTime: Seq[BikeTravelTime] = transformStringToDate(bikeTravelData)
+  val all: ArrayBuffer[Int] = ArrayBuffer(bikeTravelData.size, time(bikeTravelTime).toInt, countUseBike(bikeTravelData).size)
   writeFile("general-stats.csv", all, mailAndFeMail(bikeTravelData))
-  writeFile2("usage-stats.csv", month(bikeTrevelTime))
+  writeFile2("usage-stats.csv", month(bikeTravelTime))
   writeFile3(" bike-stats.csv", countUseBike(bikeTravelData))
+  logger.info("End program")
 
 
-
-  def transformStringToDate(bikeId: Seq[BikeTravelData]): Seq[BikeTrevelTime] = {
-
+  def transformStringToDate(bikeId: Seq[BikeTravelData]): Seq[BikeTravelTime] = {
+    logger.info("Start transformStringToDate function ")
     val result = bikeId.map(line => {
       val c1: Option[Date] = line.startTime.filter(element => !element.isEmpty).flatMap(x => {
         try {
           Option(format.parse(x))
         } catch {
-          case x: Exception => None
+          case x: Exception => {
+            logger.error("error massage :", x)
+
+            None
+          }
         }
       })
 
@@ -95,13 +117,19 @@ object CsvParse extends App {
         try {
           Option(format.parse(x))
         } catch {
-          case x: Exception => None
+          case x: Exception => {
+            logger.error("error massage :{}", x)
+            None
+          }
         }
+
+
       })
+
 
       c1.zip(c2)
     }).filter(x => x.isDefined).map(_.get).map(dto => {
-      BikeTrevelTime(dto._1, dto._2)
+      BikeTravelTime(dto._1, dto._2)
     })
 
     result
@@ -109,6 +137,8 @@ object CsvParse extends App {
   }
 
   def writeFile(fileName: String, lines: ArrayBuffer[Int], sex: Seq[(Option[String], Int)]): Unit = {
+    logger.info("Start writeFile function ")
+
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
     for (line <- lines) {
@@ -121,6 +151,8 @@ object CsvParse extends App {
   }
 
   def writeFile2(fileName: String, lines: Seq[(Int, Int)]): Unit = {
+    logger.info("Start writeFile2 function ")
+
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
     for ((k, v) <- lines) {
@@ -130,6 +162,8 @@ object CsvParse extends App {
   }
 
   def writeFile3(fileName: String, lines: Seq[(Option[String], Int)]): Unit = {
+    logger.info("Start writeFile3 function ")
+
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
     for ((k, v) <- lines) {

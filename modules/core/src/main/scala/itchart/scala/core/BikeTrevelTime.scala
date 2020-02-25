@@ -2,5 +2,5 @@ package itchart.scala.core
 
 import java.util.Date
 
-case class BikeTrevelTime(startTime:Date,
+final case class BikeTravelTime(startTime:Date,
                           stopTime:Date)
