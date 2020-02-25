@@ -1,40 +1,20 @@
 package itchart.scala.core
 
-import java.text.SimpleDateFormat
-import java.util.Date
-
 object computing_metrics {
-  private var date = 0
-  private var date1 = new Date()
 
-  private val monthOfTravel = 1
+  def countUseBike(bikeId: Seq[BikeTravelData]): Seq[(Option[String], Int)] = {
 
-  def faunddate(date: String): Date = {
-    val format = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
-    format.parse(date)
+    bikeId.groupBy(_.bikeId).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
+  } //2в и 4
 
+  def mailAndFeMail(sex: Seq[BikeTravelData]): Seq[(Option[String], Int)] = {
+    sex.groupBy(_.gender).mapValues(_.size).toSeq
+  } //2г
+  def month(seqWithData: Seq[BikeTrevelTime]): Seq[(Int, Int)] = {
+    seqWithData.groupBy(_.startTime.getMonth).mapValues(_.size).toSeq
+  } //3
+
+  def time(s: Seq[BikeTrevelTime]): Long = {
+    s.map(elem => elem.stopTime.getTime - elem.startTime.getTime).maxBy(identity)
   }
-
-  def timttrevel(date1: Date, date2: Date): Int = {
-    if (date < (date2.getTime.toInt - date1.getTime.toInt)) {
-      date = (date2.getTime.toInt - date1.getTime.toInt)
-    }
-    date
-  }
-
-
-
-  def month(seqWithData: Seq[String]): Seq[(Char,Int)] ={
-    seqWithData.groupBy(_.charAt(monthOfTravel)).mapValues(_.size).toSeq
-  }
-
-  def countusebike(bikeid: Seq[String]): Seq[(String,Int)] = {
-
-    bikeid.groupBy(_.toString).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
-  }
-
-  def mailAndFeMail(sex: Seq[String] ): Seq[(String,Int)] = {
-    sex.groupBy(_.toString).mapValues(_.size).toSeq
-  }
-}//yfpdfnm yjhvfymyj
-//reduse
+}

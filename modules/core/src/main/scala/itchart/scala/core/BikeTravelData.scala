@@ -1,4 +1,4 @@
-package itchart.scala.vew
+package itchart.scala.core
 
 case class BikeTravelData(tripDuration: Option[String],
                           startTime: Option[String],
@@ -15,4 +15,3 @@ case class BikeTravelData(tripDuration: Option[String],
                           userType: Option[String],
                           birthYear: Option[String],
                           gender: Option[String])
-

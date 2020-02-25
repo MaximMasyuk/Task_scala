@@ -1,22 +1,23 @@
-package com.igeolise.csv
+/*package com.igeolise.csv
 
 
-import java.io.File
+import java.io.{BufferedWriter, File, FileWriter}
 import java.text.SimpleDateFormat
 import java.util.Date
 
 import com.univocity.parsers.common.processor.RowListProcessor
 import com.univocity.parsers.csv.{CsvParser, CsvParserSettings}
 import org.apache.logging.log4j.LogManager
+
 import collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 
 object CSV extends App {
 
   private val logger = LogManager.getLogger("CSVProceeding")
 
 
-
-  val format = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
+  val format: SimpleDateFormat = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
 
 
   logger.info("start project")
@@ -37,7 +38,7 @@ object CSV extends App {
 
     val rows = rowProcessor.getRows.asScala.toSeq
 
-    logger.info(s"rows size ${rows.size}")
+    //logger.info(s"rows size ${rows.size}")
     val result = rows.map(line => {
 
       val lineData = line(0).split(",")
@@ -75,15 +76,16 @@ object CSV extends App {
   }
 
 
-  val s = parseCsv("Task.csv")
-  val c = countUseBike(s)
+  val s: Seq[BikeTravelData] = parseCsv("Task.csv")
 
-  val q = transformStringToDate(s)
-  val b = x(q)
-  //val v = month(q)
-  println (q)
-  println(c)
-  println(b+"1")
+  val q: Seq[BikeTrevelTime] = transformStringToDate(s)
+
+
+  val all: ArrayBuffer[Int] = ArrayBuffer(s.size, time(q).toInt, countUseBike(s).size)
+  writeFile("general-stats.csv", all, mailAndFeMail(s))
+  writeFile2("usage-stats.csv", month(q))
+  writeFile3(" bike-stats.csv", countUseBike(s))
+
 
   def countUseBike(bikeId: Seq[BikeTravelData]): Seq[(Option[String], Int)] = {
 
@@ -98,84 +100,39 @@ object CSV extends App {
   } //3
 
 
-  def transformStringToDate(bikeId: Seq[BikeTravelData]): Seq[BikeTrevelTime]={
+  def transformStringToDate(bikeId: Seq[BikeTravelData]): Seq[BikeTrevelTime] = {
 
     val result = bikeId.map(line => {
-      val c1: Option[Date]  = line.startTime.filter(element => !element.isEmpty).flatMap(x =>{
-        try{Option(format.parse(x))}catch {case x : Exception=> None}})
+      val c1: Option[Date] = line.startTime.filter(element => !element.isEmpty).flatMap(x => {
+        try {
+          Option(format.parse(x))
+        } catch {
+          case x: Exception => None
+        }
+      })
 
-      val c2: Option[Date]  = line.stopTime.filter(element => !element.isEmpty).flatMap(x =>{
-        try{Option(format.parse(x))}catch {case x : Exception=> None}})
+      val c2: Option[Date] = line.stopTime.filter(element => !element.isEmpty).flatMap(x => {
+        try {
+          Option(format.parse(x))
+        } catch {
+          case x: Exception => None
+        }
+      })
 
       c1.zip(c2)
-    }).filter(x => x.isDefined).map(_.get).map(dto =>{
+    }).filter(x => x.isDefined).map(_.get).map(dto => {
       BikeTrevelTime(dto._1, dto._2)
     })
 
     result
 
   }
-  def x (s: Seq[BikeTrevelTime]):Long={
+
+  def time(s: Seq[BikeTrevelTime]): Long = {
     s.map(elem => elem.stopTime.getTime - elem.startTime.getTime).maxBy(identity)
   }
-// данные подаются в BikeTrevelTime когда даты распарсились
 
-  //(Option[Date], Option[Date]) => Option[(Date,Date)] => (Date, Date) => BikeTrevelTime
-
-
-
-  //logger.debug(s"Number of men and women Result=$mail$femail")
-  //logger.debug(s"time of the longest trip Result=$date")
-  //logger.debug(s"number of trips per month Result=$Manth")
-  //logger.debug(s"the number of trips in decreasing number of trips Result=$bike")
-
-
-  /*All.append(rows.size(), date, (countusebike(bikeid).size))
-
-  logger.info("start writing in csv file")
-  writeFile("general-stats.cvs", All, mailAndFemail(sex))
-
-  writeFile("usage-stats.cvs", month(seqWithData))
-
-  writeFile3("bike-stats.cvs", countusebike(bikeid))
-
-  logger.info("end writing in csv file")*/
-
-}
-
-/*
-  parseCsv("Task.csv")
-
-  logger.info("end project")
-
-  def faunddate(date: String): Date = {
-    val format = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
-    format.parse(date)
-
-  }
-
-  def timt_trevel(date1: Date, date2: Date): Int = {
-    if (date < (date2.getTime.toInt - date1.getTime.toInt)) {
-      date = (date2.getTime.toInt - date1.getTime.toInt)
-    }
-    date //2 а
-  }
-
-
-
-  def month(seqWithData: Seq[String]): Seq[(Char,Int)] ={
-    seqWithData.groupBy(_.charAt(monthOfTravel)).mapValues(_.size).toSeq
-  }//3
-
-
-
-  def mailAndFemail(sex: Seq[String] ): Seq[(String,Int)] = {
-    sex.groupBy(_.toString).mapValues(_.size).toSeq
-  }//2г
-
-
-
-  def writeFile(fileName: String, lines: ArrayBuffer[Int],sex: Seq[(String,Int)] ): Unit = {
+  def writeFile(fileName: String, lines: ArrayBuffer[Int], sex: Seq[(Option[String], Int)]): Unit = {
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
     for (line <- lines) {
@@ -187,7 +144,7 @@ object CSV extends App {
     bw.close()
   }
 
-  def writeFile(fileName: String, lines:Seq[(Char,Int)]): Unit = {
+  def writeFile2(fileName: String, lines: Seq[(Int, Int)]): Unit = {
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
     for ((k, v) <- lines) {
@@ -196,7 +153,7 @@ object CSV extends App {
     bw.close()
   }
 
-  def writeFile3(fileName: String, lines: Seq[(String,Int)]): Unit = {
+  def writeFile3(fileName: String, lines: Seq[(Option[String], Int)]): Unit = {
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
     for ((k, v) <- lines) {
@@ -204,4 +161,6 @@ object CSV extends App {
     }
     bw.close()
   }
+
+
 }*/
