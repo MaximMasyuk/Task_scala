@@ -9,6 +9,7 @@ libraryDependencies ++= Seq(
   "org.apache.logging.log4j" % "log4j-core" % "2.11.0" % Runtime
 )
 libraryDependencies += "com.univocity" % "univocity-parsers" % "2.8.4"
+libraryDependencies += "com.github.scopt" %% "scopt" % "4.0.0-RC2"
 
 libraryDependencies += "commons-io" % "commons-io" % "2.6"
 

@@ -39,28 +39,29 @@ object CsvParse extends App {
       val lineData = line(0).split(",")
       //logger.info("Line to be processed is : {}", lineData)
       //logger.info("Amount of items in first line  : {}", lineData.size)
-      val c1: Option[String] = headers.get("tripduration").map(index => {
+      val tripduration: Option[String] = headers.get("tripduration").map(index => {
         //logger.info("Index of column tripduration is : {}", index)
         //logger.info("Value of column tripduration is : {}", lineData(index))
         lineData(index)
       })
-      val c2: Option[String] = headers.get("starttime").map(index => lineData(index))
-      val c3: Option[String] = headers.get("stoptime").map(index => lineData(index))
-      val c4: Option[String] = headers.get("start station id").map(index => lineData(index))
-      val c5: Option[String] = headers.get("start station name").map(index => lineData(index))
-      val c6: Option[String] = headers.get("start station latitude").map(index => lineData(index))
-      val c7: Option[String] = headers.get("start station longitude").map(index => lineData(index))
-      val c8: Option[String] = headers.get("end station id").map(index => lineData(index))
-      val c9: Option[String] = headers.get("end station name").map(index => lineData(index))
-      val c10: Option[String] = headers.get("end station latitude").map(index => lineData(index))
-      val c11: Option[String] = headers.get("end station longitude").map(index => lineData(index))
-      val c12: Option[String] = headers.get("bikeid").map(index => lineData(index))
-      val c13: Option[String] = headers.get("usertype").map(index => lineData(index))
-      val c14: Option[String] = headers.get("birth year").map(index => lineData(index))
-      val c15: Option[String] = headers.get("gender").map(index => lineData(index))
+      val startTime: Option[String] = headers.get("starttime").map(index => lineData(index))
+      val stopTime: Option[String] = headers.get("stoptime").map(index => lineData(index))
+      val startStationId: Option[String] = headers.get("start station id").map(index => lineData(index))
+      val starStationName: Option[String] = headers.get("start station name").map(index => lineData(index))
+      val startStationLatitude: Option[String] = headers.get("start station latitude").map(index => lineData(index))
+      val startStationLongitude: Option[String] = headers.get("start station longitude").map(index => lineData(index))
+      val endStationId: Option[String] = headers.get("end station id").map(index => lineData(index))
+      val endStationName: Option[String] = headers.get("end station name").map(index => lineData(index))
+      val endStationLatitude: Option[String] = headers.get("end station latitude").map(index => lineData(index))
+      val endStationLongitude: Option[String] = headers.get("end station longitude").map(index => lineData(index))
+      val bikeId: Option[String] = headers.get("bikeid").map(index => lineData(index))
+      val userType: Option[String] = headers.get("usertype").map(index => lineData(index))
+      val birthYear: Option[String] = headers.get("birth year").map(index => lineData(index))
+      val gender: Option[String] = headers.get("gender").map(index => lineData(index))
 
 
-      BikeTravelData(c1, c2, c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15)
+      BikeTravelData(tripduration, startTime, stopTime,startStationId,starStationName,startStationLatitude,startStationLongitude,
+        endStationId,endStationName,endStationLatitude,endStationLongitude,bikeId,userType,birthYear,gender)
 
     })
 
@@ -70,12 +71,12 @@ object CsvParse extends App {
     result
   }
 
-  val s: Seq[BikeTravelData] = parseCsv("Task.csv")
-  val q: Seq[BikeTrevelTime] = transformStringToDate(s)
-  val all: ArrayBuffer[Int] = ArrayBuffer(s.size, time(q).toInt, countUseBike(s).size)
-  writeFile("general-stats.csv", all, mailAndFeMail(s))
-  writeFile2("usage-stats.csv", month(q))
-  writeFile3(" bike-stats.csv", countUseBike(s))
+  val bikeTravelData: Seq[BikeTravelData] = parseCsv("Task.csv")
+  val bikeTrevelTime: Seq[BikeTrevelTime] = transformStringToDate(bikeTravelData)
+  val all: ArrayBuffer[Int] = ArrayBuffer(bikeTravelData.size, time(bikeTrevelTime).toInt, countUseBike(bikeTravelData).size)
+  writeFile("general-stats.csv", all, mailAndFeMail(bikeTravelData))
+  writeFile2("usage-stats.csv", month(bikeTrevelTime))
+  writeFile3(" bike-stats.csv", countUseBike(bikeTravelData))
 
 
 
