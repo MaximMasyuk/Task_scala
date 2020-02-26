@@ -6,8 +6,8 @@ import java.util.Date
 
 import com.univocity.parsers.common.processor.RowListProcessor
 import com.univocity.parsers.csv.{CsvParser, CsvParserSettings}
-import itchart.scala.core.computing_metrics.{countUseBike, mailAndFeMail, month, time}
-import itchart.scala.core.{BikeTravelData, BikeTrevelTime}
+import itchart.scala.core.ComputingMetrics.{countUseBike, mailAndFeMail, month, time}
+import itchart.scala.core.ModelClasses.{BikeTravelData, BikeTravelTime}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -72,7 +72,7 @@ object CsvParse extends App {
   }
 
   val bikeTravelData: Seq[BikeTravelData] = parseCsv("Task.csv")
-  val bikeTrevelTime: Seq[BikeTrevelTime] = transformStringToDate(bikeTravelData)
+  val bikeTrevelTime: Seq[BikeTravelTime] = transformStringToDate(bikeTravelData)
   val all: ArrayBuffer[Int] = ArrayBuffer(bikeTravelData.size, time(bikeTrevelTime).toInt, countUseBike(bikeTravelData).size)
   writeFile("general-stats.csv", all, mailAndFeMail(bikeTravelData))
   writeFile2("usage-stats.csv", month(bikeTrevelTime))
@@ -80,7 +80,7 @@ object CsvParse extends App {
 
 
 
-  def transformStringToDate(bikeId: Seq[BikeTravelData]): Seq[BikeTrevelTime] = {
+  def transformStringToDate(bikeId: Seq[BikeTravelData]): Seq[BikeTravelTime] = {
 
     val result = bikeId.map(line => {
       val c1: Option[Date] = line.startTime.filter(element => !element.isEmpty).flatMap(x => {
@@ -101,7 +101,7 @@ object CsvParse extends App {
 
       c1.zip(c2)
     }).filter(x => x.isDefined).map(_.get).map(dto => {
-      BikeTrevelTime(dto._1, dto._2)
+      BikeTravelTime(dto._1, dto._2)
     })
 
     result
