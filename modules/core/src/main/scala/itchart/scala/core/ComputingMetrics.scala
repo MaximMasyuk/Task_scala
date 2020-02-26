@@ -6,20 +6,20 @@ import org.apache.logging.log4j.LogManager
 object ComputingMetrics {
 
   private val logger = LogManager.getLogger("CSVProceeding")
-  def countUseBike(bikeId: Seq[BikeTravelData]): Seq[(Option[String], Int)] = {
+  def countUseBike(bikeId: Seq[BikeTravelData]): Seq[(String, Int)] = {
     logger.info("Start countUseBike function ")
     logger.debug("CountUseBike ={}",bikeId.groupBy(_.bikeId).mapValues(_.size).toSeq.sortWith(_._2 > _._2))
 
-    bikeId.groupBy(_.bikeId).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
+    bikeId.groupBy(_.bikeId.get).mapValues(_.size).toSeq.sortWith(_._2 > _._2)
 
   } //2в и 4
 
-  def mailAndFeMail(sex: Seq[BikeTravelData]): Seq[(Option[String], Int)] = {
+  def mailAndFeMail(sex: Seq[BikeTravelData]): Seq[(String, Int)] = {
     logger.info("Start mailAndFeMail function ")
     logger.debug("MailAndFeMail ={}",sex.groupBy(_.gender).mapValues(_.size).toSeq )
 
-    sex.groupBy(_.gender).mapValues(_.size).toSeq
-    //logger.info("End mailAndFeMail function ")
+    sex.groupBy(_.gender.get).mapValues(_.size).toSeq
+
 
   } //2г
   def month(seqWithData: Seq[BikeTravelTime]): Seq[(Int, Int)] = {

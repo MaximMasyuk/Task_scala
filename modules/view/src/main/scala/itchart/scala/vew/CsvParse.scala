@@ -140,7 +140,7 @@ object CsvParse extends App {
 
   }
 
-  def writeFile1(fileName: String, lines: ArrayBuffer[Int], sex: Seq[(Option[String], Int)]): Unit = {
+  def writeFile1(fileName: String, lines: ArrayBuffer[Int], sex: Seq[(String, Int)]): Unit = {
     logger.info("Start writeFile function ")
 
     val fail = new File(fileName)
@@ -165,7 +165,7 @@ object CsvParse extends App {
     bw.close()
   }
 
-  def writeFile3(fileName: String, lines: Seq[(Option[String], Int)]): Unit = {
+  def writeFile3(fileName: String, lines: Seq[(String, Int)]): Unit = {
     logger.info("Start writeFile3 function ")
 
     val fail = new File(fileName)
