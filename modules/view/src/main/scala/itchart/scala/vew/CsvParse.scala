@@ -6,18 +6,35 @@ import java.util.Date
 
 import com.univocity.parsers.common.processor.RowListProcessor
 import com.univocity.parsers.csv.{CsvParser, CsvParserSettings}
-
 import itchart.scala.core.ComputingMetrics.{countUseBike, mailAndFeMail, month, time}
-import itchart.scala.core.ModelClasses.{BikeTravelData, BikeTravelTime}
-
-
+import itchart.scala.core.ModelClasses.{BikeTravelData, BikeTravelTime, Config}
 import org.apache.logging.log4j.LogManager
-
+import scopt.OParser
 
 import scala.collection.mutable.ArrayBuffer
 
 
 object CsvParse extends App {
+  val builder = OParser.builder[Config]
+  val parser1 = {
+    import builder._
+    OParser.sequence(
+      programName("scopt"),
+      head("scopt", "4.x"),
+      // option -f, --foo
+      opt[String]('f', "foo")
+        .action((x, c) => c.copy(foo = x))
+        .text("foo is an integer property"),
+      // more options here...
+    )
+  }
+  // OParser.parse returns Option[Config]
+  OParser.parse(parser1, args, Config()) match {
+    case Some(config) =>
+    // do something
+    case _ =>
+    // arguments are bad, error message will have been displayed
+  }
 
 
   val format: SimpleDateFormat = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")

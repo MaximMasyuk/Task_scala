@@ -25,7 +25,7 @@ object ModelClasses {
                             stopTime:Date)
 
 
-  case class Config(foo: Int = -1,
+  case class Config(foo: String = "Task.csv",
                     out: File = new File("."),
                     xyz: Boolean = false,
                     libName: String = "",
