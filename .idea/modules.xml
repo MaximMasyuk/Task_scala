@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/CSVParserAndLog4g.iml" filepath="$PROJECT_DIR$/.idea/modules/CSVParserAndLog4g.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/CSVParserAndLog4g-build.iml" filepath="$PROJECT_DIR$/.idea/modules/CSVParserAndLog4g-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core.iml" filepath="$PROJECT_DIR$/.idea/modules/core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/view.iml" filepath="$PROJECT_DIR$/.idea/modules/view.iml" />
     </modules>
   </component>
 </project>

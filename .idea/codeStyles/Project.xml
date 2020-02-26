@@ -4,6 +4,7 @@
       <option name="alwaysUsedImports">
         <array>
           <option value="breeze.linalg.linalg" />
+          <option value="org.apache.logging.log4j.scala.Logging" />
         </array>
       </option>
     </ScalaCodeStyleSettings>
