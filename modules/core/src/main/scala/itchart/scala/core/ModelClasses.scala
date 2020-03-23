@@ -1,7 +1,7 @@
 package itchart.scala.core
 
 import java.io.File
-import java.util.Date
+import java.time.LocalDate
 
 object ModelClasses {
 
@@ -21,8 +21,8 @@ object ModelClasses {
                             birthYear: Option[String],
                             gender: Option[String])
 
-  case class BikeTravelTime(startTime:Date,
-                            stopTime:Date)
+  case class BikeTravelTime(startTime:LocalDate,
+                            stopTime:LocalDate)
 
 
   case class Config(foo: String = "Task.csv",

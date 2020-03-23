@@ -1,17 +1,19 @@
 package itchart.scala.vew
 
 import java.io.{BufferedWriter, File, FileWriter}
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 import com.univocity.parsers.common.processor.RowListProcessor
 import com.univocity.parsers.csv.{CsvParser, CsvParserSettings}
-import itchart.scala.core.ComputingMetrics.{countUseBike, mailAndFeMail, month, time}
 import itchart.scala.core.ModelClasses.{BikeTravelData, BikeTravelTime, Config}
+import itchart.scala.core.ComputingMetrics.mailAndFeMail
 import org.apache.logging.log4j.LogManager
 import scopt.OParser
 
-import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 
 object CsvParse extends App {
@@ -37,20 +39,20 @@ object CsvParse extends App {
   }
 
 
-  val format: SimpleDateFormat = new SimpleDateFormat("\"MM/dd/yyyy hh:mm:ss\"")
+  val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy  HH:mm:ss", Locale.ENGLISH)
   private val logger = LogManager.getLogger("CSVProceeding")
 
-  def parseCsv(fileName: String): Seq[BikeTravelData] = {
+  def parseCsv(fileName: File): Seq[BikeTravelData] = {
     logger.info("start parse csv")
     val parserSettings = new CsvParserSettings()
     parserSettings.setLineSeparatorDetectionEnabled(true)
     val rowProcessor = new RowListProcessor
     parserSettings.setRowProcessor(rowProcessor)
-    parserSettings.setHeaderExtractionEnabled(true);
+    parserSettings.setHeaderExtractionEnabled(true)
 
 
     val parser = new CsvParser(parserSettings)
-    parser.parse(new File(fileName))
+    parser.parse(fileName)
     val headers: Map[String, Int] = rowProcessor.getHeaders.zipWithIndex.toMap
     logger.info("Headers and indexes of parsed file : {}", headers)
     import collection.JavaConverters._
@@ -85,46 +87,50 @@ object CsvParse extends App {
 
     logger.info("end parse csv")
 
-
+x
     result
   }
 
-  val bikeTravelData: Seq[BikeTravelData] = parseCsv("Task.csv")
+
+  val li =  getListOfFiles(new File("./csv"))
+
+ val bikeTravelData = Future.sequence(li.map(x =>  Future(parseCsv(x)) ))
 
 
-  val bikeTravelTime: Seq[BikeTravelTime] = transformStringToDate(bikeTravelData)
-  val all: ArrayBuffer[Int] = ArrayBuffer(bikeTravelData.size, time(bikeTravelTime).toInt, countUseBike(bikeTravelData).size)
+  println(bikeTravelData.map(x =>mailAndFeMail(x)))
+  //val bikeTravelTime: List[Seq[BikeTravelTime]] =bikeTravelData.map(x =>transformStringToDate (x))
+  //val all: ArrayBuffer[Int] = ArrayBuffer(bikeTravelData.map(x =>x.size), /*time(bikeTravelTime).toInt,*/ countUseBike(bikeTravelData.map(x=> x).size))
 
-  writeFile1("general-stats.csv", all, mailAndFeMail(bikeTravelData))
-  writeFile2("usage-stats.csv", month(bikeTravelTime))
-  writeFile3(" bike-stats.csv", countUseBike(bikeTravelData))
+  //writeFile1("general-stats.csv",mailAndFeMail(Future(bikeTravelData.flatten)))
+  //writeFile2("usage-stats.csv", month(bikeTravelTime))
+  //writeFile3(" bike-stats.csv", countUseBike(bikeTravelData))
   logger.info("End program")
+  //println(mailAndFeMail(bikeTravelData.flatMap(x => x)))
+
 
 
   def transformStringToDate(bikeId: Seq[BikeTravelData]): Seq[BikeTravelTime] = {
     logger.info("Start transformStringToDate function ")
 
     val result = bikeId.map(line => {
-      val c1: Option[Date] = line.startTime.filter(element => !element.isEmpty).flatMap(x => {
+      val c1: Option[LocalDate] = line.startTime.filter(element => !element.isEmpty).flatMap(x => {
         try {
-          Option(format.parse(x))
+          Option(LocalDate.parse(x, formatter))
         } catch {
-          case x: Exception => {
+          case x: Exception =>
             logger.error("error massage :", x)
 
             None
-          }
         }
       })
 
-      val c2: Option[Date] = line.stopTime.filter(element => !element.isEmpty).flatMap(x => {
+      val c2: Option[LocalDate] = line.stopTime.filter(element => !element.isEmpty).flatMap(x => {
         try {
-          Option(format.parse(x))
+          Option(LocalDate.parse(x, formatter))
         } catch {
-          case x: Exception => {
+          case x: Exception =>
             logger.error("error massage :{}", x)
             None
-          }
         }
 
 
@@ -140,16 +146,13 @@ object CsvParse extends App {
 
   }
 
-  def writeFile1(fileName: String, lines: ArrayBuffer[Int], sex: Seq[(String, Int)]): Unit = {
+  def writeFile1(fileName: String,  sex:  Seq[(String, Int)]): Unit = {
     logger.info("Start writeFile function ")
 
     val fail = new File(fileName)
     val bw = new BufferedWriter(new FileWriter(fail))
-    for (line <- lines) {
-      bw.write(line + "\n")
-    }
-    for ((k, v) <- sex) {
-      bw.write(k.toString + "," + v.toString + "\n")
+    for ((k,v) <- sex) {
+      bw.write(k +"," + v)
     }
     bw.close()
   }
@@ -175,6 +178,10 @@ object CsvParse extends App {
     }
     bw.close()
   }
+
+
+
+  def getListOfFiles (dir: File): List [File] = dir.listFiles.filter (_.isFile) .toList
 
 
 }

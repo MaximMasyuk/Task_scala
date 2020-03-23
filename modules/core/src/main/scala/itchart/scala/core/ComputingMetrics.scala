@@ -14,25 +14,25 @@ object ComputingMetrics {
 
   } //2в и 4
 
-  def mailAndFeMail(sex: Seq[BikeTravelData]): Seq[(String, Int)] = {
+  def mailAndFeMail(sex: Seq[BikeTravelData]): Seq[(String, Int)]= {
     logger.info("Start mailAndFeMail function ")
     logger.debug("MailAndFeMail ={}",sex.groupBy(_.gender).mapValues(_.size).toSeq )
 
-    sex.groupBy(_.gender.get).mapValues(_.size).toSeq
+   sex.groupBy(_.gender.get).mapValues(_.size).toSeq
 
 
   } //2г
   def month(seqWithData: Seq[BikeTravelTime]): Seq[(Int, Int)] = {
     logger.info("Start month function ")
-    logger.debug("Month ={}",seqWithData.groupBy(_.startTime.getMonth).mapValues(_.size).toSeq)
+    logger.debug("Month ={}",seqWithData.groupBy(_.startTime))
 
-    seqWithData.groupBy(_.startTime.getMonth).mapValues(_.size).toSeq
+    seqWithData.groupBy(_.startTime.getMonthValue()).mapValues(_.size).toSeq
   } //3
 
-  def time(s: Seq[BikeTravelTime]): Long = {
+  /*def time(s: Seq[BikeTravelTime]): Long = {
     logger.info("Start time function ")
     logger.debug("Time ={}",    s.map(elem => elem.stopTime.getTime - elem.startTime.getTime).maxBy(identity))
 
-    s.map(elem => elem.stopTime.getTime - elem.startTime.getTime).maxBy(identity)
-  }
+    s.map(elem => elem.stopTime. - elem.startTime.getTime).maxBy(identity)
+  }*/
 }
