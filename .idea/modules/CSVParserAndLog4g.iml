@@ -8,6 +8,9 @@
       <sourceFolder url="file://$MODULE_DIR$/../../src/main/scala" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../src/test/scala" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/../../src/main/resources" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../modules/view/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../modules/core/src/main/scala" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/../../modules/view/src/main/resources" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/../../target" />
     </content>
     <orderEntry type="inheritedJdk" />
